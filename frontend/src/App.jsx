@@ -74,6 +74,9 @@ function useCooldown() {
 // ---------------------------------------------------------------------------
 // Subcomponent: TrackResultItem
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Subcomponent: TrackResultItem
+// ---------------------------------------------------------------------------
 function TrackResultItem({ track, onAdd, status }) {
   const isAdding = status === "adding";
   const isAdded = status === "added";
@@ -81,13 +84,13 @@ function TrackResultItem({ track, onAdd, status }) {
   return (
     <li className="flex items-center gap-3 py-3">
       <img
-        src={track.albumArt}
-        alt=""
+        src={track.image} // <-- Changed from albumArt to image
+        alt={`${track.name} album art`}
         className="h-12 w-12 flex-shrink-0 rounded object-cover bg-neutral-800"
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-neutral-100">
-          {track.title}
+        <p className="truncate text-base font-semibold text-neutral-100">
+          {track.name} {/* <-- Changed from title to name */}
         </p>
         <p className="truncate text-sm text-neutral-400">{track.artist}</p>
       </div>
@@ -95,7 +98,7 @@ function TrackResultItem({ track, onAdd, status }) {
         type="button"
         onClick={() => onAdd(track)}
         disabled={isAdding || isAdded}
-        aria-label={isAdded ? "Added to queue" : `Add ${track.title} to queue`}
+        aria-label={isAdded ? "Added to queue" : `Add ${track.name} to queue`}
         className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors
           ${isAdded
             ? "bg-green-500 text-black"
@@ -195,9 +198,13 @@ export default function App() {
     setIsSearching(true);
     setSearchError(null);
 
-    fetch(`${API_URL}/search?q=${encodeURIComponent(trimmed)}`)
+    fetch(`${API_URL}/search?q=${encodeURIComponent(trimmed)}`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
+      }
+    })
       .then((res) => {
-        if (!res.ok) throw new Error("Search request failed");
+        if (!res.ok) throw new Error("Seafrch request failed");
         return res.json();
       })
       .then((data) => {
@@ -224,7 +231,10 @@ export default function App() {
       try {
         const res = await fetch(`${API_URL}/add`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": 'true'
+          },
           body: JSON.stringify({ uri: track.uri }),
         });
 
